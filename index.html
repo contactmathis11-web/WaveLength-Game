@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jeu Wavelength</title>
+
+<style>
+
+body{
+font-family:'Segoe UI',Tahoma,Verdana;
+background:#e0e5ec;
+margin:0;
+padding:40px;
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+
+/* LAYOUT PRINCIPAL */
+
+.main{
+display:flex;
+gap:40px;
+align-items:center;
+}
+
+/* PANELS NEOMORPHISM */
+
+.panel{
+background:#e0e5ec;
+padding:25px;
+border-radius:20px;
+
+box-shadow:
+6px 6px 12px #b8b9be,
+-6px -6px 12px #ffffff;
+}
+
+/* ZONES INDICES */
+
+.clue-panel{
+width:180px;
+height:120px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.clue-panel textarea{
+
+width:100%;
+height:70px;
+
+resize:none;
+
+border:none;
+border-radius:12px;
+
+padding:10px;
+
+text-align:center;
+font-size:16px;
+font-weight:bold;
+
+background:#e0e5ec;
+
+box-shadow:
+inset 3px 3px 6px #b8b9be,
+inset -3px -3px 6px #ffffff;
+
+outline:none;
+}
+
+/* CONTROLES */
+
+.controls{
+display:flex;
+gap:30px;
+margin-top:25px;
+justify-content:center;
+}
+
+/* BOUTONS */
+
+button{
+
+padding:12px 22px;
+font-size:15px;
+border:none;
+border-radius:50px;
+
+background:white;
+
+box-shadow:
+6px 6px 12px #b8b9be,
+-6px -6px 12px #ffffff;
+
+cursor:pointer;
+transition:.15s;
+}
+
+button:active{
+
+box-shadow:
+inset 3px 3px 6px #b8b9be,
+inset -3px -3px 6px #ffffff;
+
+}
+
+#btn-roue{
+font-weight:bold;
+}
+
+/* SWITCH */
+
+.switch{
+position:relative;
+width:110px;
+height:50px;
+}
+
+.switch input{
+display:none;
+}
+
+.slider{
+position:absolute;
+cursor:pointer;
+inset:0;
+background:#d3d3d3;
+border-radius:40px;
+transition:.4s;
+}
+
+.slider:before{
+content:"";
+position:absolute;
+height:40px;
+width:40px;
+left:5px;
+top:5px;
+background:white;
+border-radius:50%;
+transition:.4s;
+}
+
+input:checked + .slider{
+background:#4e1c08;
+}
+
+input:checked + .slider:before{
+transform:translateX(60px);
+}
+
+.slider:after{
+content:"CLOSE";
+position:absolute;
+right:15px;
+top:14px;
+font-size:13px;
+color:#777;
+font-weight:bold;
+}
+
+input:checked + .slider:after{
+content:"OPEN";
+left:15px;
+right:auto;
+color:white;
+}
+
+/* JEU */
+
+#game-container{
+width:min(90vw,650px);
+height:min(90vw,650px);
+position:relative;
+}
+
+/* IMAGES */
+
+.layer{
+position:absolute;
+inset:0;
+width:100%;
+height:100%;
+object-fit:contain;
+object-position:center;
+user-select:none;
+pointer-events:none;
+}
+
+#roue{
+z-index:1;
+transform-origin:center;
+transition:transform 4s cubic-bezier(0.15,1,0.3,1);
+}
+
+#structure{z-index:2;}
+#cache{
+z-index:3;
+transition:opacity .5s;
+}
+
+#aiguille{
+z-index:4;
+pointer-events:auto;
+cursor:grab;
+transform-origin:center;
+}
+
+#aiguille:active{cursor:grabbing;}
+
+.masque{opacity:0;}
+
+/* SCORE */
+
+.score-panel{
+width:220px;
+}
+
+.score-panel h2{
+margin-top:0;
+text-align:center;
+}
+
+.player{
+margin-bottom:25px;
+}
+
+.player input{
+
+width:100%;
+padding:8px;
+
+margin-bottom:10px;
+
+border:none;
+border-radius:10px;
+
+box-shadow:
+inset 3px 3px 6px #b8b9be,
+inset -3px -3px 6px #ffffff;
+
+}
+
+.score{
+font-size:26px;
+text-align:center;
+margin:10px 0;
+font-weight:bold;
+}
+
+/* BOUTONS SCORE */
+
+.score-buttons{
+display:flex;
+justify-content:space-between;
+}
+
+.score-buttons button{
+font-weight:bold;
+color:#1c1d25;
+}
+
+/* COULEURS */
+
+.plus2{background:#caae9f;}
+.plus3{background:#9e7161;}
+.plus4{background:#873632;}
+
+.reset{
+margin-top:10px;
+background:#c0392b;
+color:white;
+font-weight:bold;
+width:100%;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="main">
+
+<!-- INDICE GAUCHE -->
+
+<div class="panel clue-panel">
+<textarea placeholder="Indice gauche"></textarea>
+</div>
+
+
+<!-- JEU -->
+
+<div>
+
+<div id="game-container">
+
+<img src="roue2.png" id="roue" class="layer">
+<img src="structure2.png" id="structure" class="layer">
+<img src="cache2.png" id="cache" class="layer">
+<img src="aiguille2.png" id="aiguille" class="layer">
+
+</div>
+
+<div class="controls">
+
+<button id="btn-roue">
+Tourner la roue
+</button>
+
+<label class="switch">
+<input type="checkbox" id="switch-cache">
+<span class="slider"></span>
+</label>
+
+</div>
+
+</div>
+
+
+<!-- INDICE DROIT -->
+
+<div class="panel clue-panel">
+<textarea placeholder="Indice droit"></textarea>
+</div>
+
+
+<!-- SCORE -->
+
+<div class="panel score-panel">
+
+<h2>Score</h2>
+
+<div class="player">
+
+<input placeholder="Joueur 1">
+
+<div class="score" id="score1">0</div>
+
+<div class="score-buttons">
+<button class="plus2" onclick="addScore(1,2)">+2</button>
+<button class="plus3" onclick="addScore(1,3)">+3</button>
+<button class="plus4" onclick="addScore(1,4)">+4</button>
+</div>
+
+</div>
+
+<div class="player">
+
+<input placeholder="Joueur 2">
+
+<div class="score" id="score2">0</div>
+
+<div class="score-buttons">
+<button class="plus2" onclick="addScore(2,2)">+2</button>
+<button class="plus3" onclick="addScore(2,3)">+3</button>
+<button class="plus4" onclick="addScore(2,4)">+4</button>
+</div>
+
+</div>
+
+<button class="reset" onclick="resetScores()">
+RESET SCORE
+</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* ROUE */
+
+const btnRoue=document.getElementById("btn-roue")
+const roue=document.getElementById("roue")
+
+let angleRoueActuel=0
+
+btnRoue.onclick=()=>{
+
+const tours=1440
+const angleAleatoire=Math.random()*360
+
+angleRoueActuel+=tours+angleAleatoire
+
+roue.style.transform=`rotate(${angleRoueActuel}deg)`
+
+}
+
+/* CACHE */
+
+const cache=document.getElementById("cache")
+const switchCache=document.getElementById("switch-cache")
+
+switchCache.onchange=()=>{
+
+if(switchCache.checked){
+
+cache.classList.add("masque")
+
+}else{
+
+cache.classList.remove("masque")
+
+}
+
+}
+
+/* AIGUILLE */
+
+const aiguille=document.getElementById("aiguille")
+const container=document.getElementById("game-container")
+
+let drag=false
+
+aiguille.onmousedown=(e)=>{
+e.preventDefault()
+drag=true
+}
+
+window.onmouseup=()=>drag=false
+
+window.onmousemove=(e)=>{
+
+if(!drag) return
+
+const rect=container.getBoundingClientRect()
+
+const cx=rect.left+rect.width/2
+const cy=rect.top+rect.height/2
+
+const x=e.clientX-cx
+const y=e.clientY-cy
+
+let angle=Math.atan2(y,x)*(180/Math.PI)+90
+
+aiguille.style.transform=`rotate(${angle}deg)`
+
+}
+
+/* SCORE */
+
+let scores=[0,0]
+
+function addScore(player,points){
+
+scores[player-1]+=points
+
+document.getElementById("score"+player).textContent=scores[player-1]
+
+}
+
+function resetScores(){
+
+scores=[0,0]
+
+document.getElementById("score1").textContent=0
+document.getElementById("score2").textContent=0
+
+}
+
+</script>
+
+</body>
+</html>
