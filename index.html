@@ -4,85 +4,104 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-<title>Jeu Wavelength</title>
+<title>Wavelength</title>
 
-<!-- FAVICONS UNIVERSAUX -->
-
-<link rel="icon" type="image/png" sizes="32x32" href="favicon32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="favicon192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="appleicon.png">
+<link rel="icon" href="logo.png">
 
 <style>
 
-body{
-
+html,body{
+margin:0;
+padding:0;
+height:100%;
+overflow:hidden;
 font-family:'Segoe UI',Tahoma,Verdana;
 background:#e0e5ec;
+}
 
-margin:0;
-padding:20px;
+/* écran orientation */
 
+#rotate{
+position:fixed;
+inset:0;
+background:#e0e5ec;
 display:flex;
-flex-direction:column;
 align-items:center;
+justify-content:center;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+z-index:999;
+}
 
+@media (orientation:landscape){
+#rotate{display:none;}
+}
+
+/* TITRE */
+
+.title{
+position:absolute;
+top:1vh;
+width:100%;
+text-align:center;
+}
+
+.title img{
+height:8vh;
 }
 
 /* LAYOUT */
 
 .main{
+position:absolute;
+top:10vh;
+bottom:1vh;
+left:1vw;
+right:1vw;
 
 display:flex;
-gap:25px;
+justify-content:space-between;
 align-items:center;
-justify-content:center;
-flex-wrap:wrap;
-
 }
 
 /* PANELS */
 
 .panel{
-
 background:#e0e5ec;
-padding:20px;
 border-radius:20px;
+padding:12px;
 
 box-shadow:
 6px 6px 12px #b8b9be,
 -6px -6px 12px #ffffff;
-
 }
 
 /* INDICES */
 
 .clue-panel{
-
-width:150px;
-height:120px;
-
+width:14vw;
+height:20vh;
 display:flex;
 align-items:center;
 justify-content:center;
-
 }
 
 .clue-panel textarea{
 
 width:100%;
-height:70px;
+height:80%;
 
 resize:none;
-
 border:none;
+
 border-radius:12px;
 
 padding:10px;
 
 text-align:center;
-font-size:16px;
 font-weight:bold;
 
 background:#e0e5ec;
@@ -91,106 +110,80 @@ box-shadow:
 inset 3px 3px 6px #b8b9be,
 inset -3px -3px 6px #ffffff;
 
-outline:none;
-
 }
 
 /* JEU */
 
+.center-zone{
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+
+/* ROUE */
+
 #game-container{
-
-width:min(90vw,600px);
-height:min(90vw,600px);
-
+width:45vh;
+height:45vh;
 position:relative;
-
 }
 
 /* IMAGES */
 
 .layer{
-
 position:absolute;
 inset:0;
-
 width:100%;
 height:100%;
-
 object-fit:contain;
-
-user-select:none;
 pointer-events:none;
-
+user-select:none;
 }
 
 #roue{
-
-z-index:1;
-transform-origin:center;
-
-transition:transform 4s cubic-bezier(.15,1,.3,1);
-
-}
-
-#structure{z-index:2;}
-
-#cache{
-
-z-index:3;
-transition:opacity .5s;
-
+transition:transform 4s cubic-bezier(0.15,1,0.3,1);
 }
 
 #aiguille{
-
-z-index:4;
-
-pointer-events:auto;
-
-cursor:grab;
-
-transform-origin:center;
-
+z-index:5;
+pointer-events:none;
 }
 
-#aiguille:active{
-cursor:grabbing;
-}
+/* HITBOX */
 
-.masque{
-opacity:0;
+#hitbox{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:50%;
+z-index:10;
+cursor:pointer;
 }
 
 /* CONTROLES */
 
 .controls{
-
 display:flex;
 gap:20px;
-margin-top:20px;
-justify-content:center;
-
+margin-top:15px;
 }
 
 /* BOUTONS */
 
 button{
 
-padding:14px 20px;
-
-font-size:15px;
-font-weight:bold;
+padding:10px 18px;
+font-size:14px;
 
 border:none;
-border-radius:40px;
+border-radius:50px;
 
 background:white;
 
 box-shadow:
 6px 6px 12px #b8b9be,
 -6px -6px 12px #ffffff;
-
-cursor:pointer;
 
 }
 
@@ -205,48 +198,30 @@ inset -3px -3px 6px #ffffff;
 /* SWITCH */
 
 .switch{
-
 position:relative;
-width:110px;
-height:50px;
-
+width:90px;
+height:40px;
 }
 
-.switch input{
-display:none;
-}
+.switch input{display:none;}
 
 .slider{
-
 position:absolute;
-cursor:pointer;
 inset:0;
-
 background:#d3d3d3;
-
 border-radius:40px;
-transition:.4s;
-
 }
 
 .slider:before{
-
 content:"";
-
 position:absolute;
-
-height:40px;
-width:40px;
-
+height:30px;
+width:30px;
 left:5px;
 top:5px;
-
 background:white;
-
 border-radius:50%;
-
-transition:.4s;
-
+transition:.3s;
 }
 
 input:checked + .slider{
@@ -254,57 +229,31 @@ background:#4e1c08;
 }
 
 input:checked + .slider:before{
-transform:translateX(60px);
-}
-
-.slider:after{
-
-content:"CLOSE";
-
-position:absolute;
-
-right:15px;
-top:14px;
-
-font-size:13px;
-color:#777;
-font-weight:bold;
-
-}
-
-input:checked + .slider:after{
-
-content:"OPEN";
-
-left:15px;
-right:auto;
-
-color:white;
-
+transform:translateX(50px);
 }
 
 /* SCORE */
 
 .score-panel{
-width:200px;
+width:18vw;
 }
 
-.score{
-font-size:26px;
+.score-panel h2{
+margin:5px;
 text-align:center;
-margin:10px 0;
-font-weight:bold;
+}
+
+.player{
+margin-bottom:15px;
 }
 
 .player input{
 
 width:100%;
-
-padding:8px;
-margin-bottom:10px;
+padding:5px;
 
 border:none;
-border-radius:10px;
+border-radius:8px;
 
 box-shadow:
 inset 3px 3px 6px #b8b9be,
@@ -312,82 +261,77 @@ inset -3px -3px 6px #ffffff;
 
 }
 
-.score-buttons{
+.score{
+text-align:center;
+font-size:22px;
+font-weight:bold;
+margin:6px;
+}
 
+/* BOUTONS SCORE */
+
+.score-buttons{
 display:flex;
 justify-content:space-between;
-
+gap:5px;
 }
 
 .score-buttons button{
-
 font-weight:bold;
 color:#1c1d25;
-
+padding:6px 8px;
 }
 
+/* COULEURS */
+
+.minus1{background:#ffffff;}
 .plus2{background:#caae9f;}
 .plus3{background:#9e7161;}
-.plus4{background:#873632;}
+.plus4{background:#873632;color:white;}
 
 .reset{
-
-margin-top:10px;
+margin-top:8px;
 background:#c0392b;
 color:white;
 width:100%;
-
-}
-
-/* MOBILE */
-
-@media (max-width:900px){
-
-.main{
-
-flex-direction:column;
-
-}
-
-.clue-panel{
-width:200px;
-}
-
-.score-panel{
-width:220px;
-}
-
+font-weight:bold;
 }
 
 </style>
-
 </head>
 
-
 <body>
+
+<div id="rotate">
+Tournez votre téléphone en mode paysage
+</div>
+
+<div class="title">
+<img src="logofull.png">
+</div>
 
 <div class="main">
 
 <div class="panel clue-panel">
-<textarea placeholder="Indice gauche"></textarea>
+<textarea placeholder="..."></textarea>
 </div>
 
-<div>
+<div class="center-zone">
 
 <div id="game-container">
 
-<img src="roue.png" id="roue" class="layer">
-<img src="structure.png" id="structure" class="layer">
-<img src="WaveLenght.png" id="cache" class="layer">
-<img src="aiguille.png" id="aiguille" class="layer">
+<img src="roue2.png" class="layer" id="roue">
+<img src="structure2.png" class="layer">
+<img src="cache2.png" class="layer" id="cache">
+<img src="aiguille2.png" class="layer" id="aiguille">
+
+<div id="hitbox"></div>
 
 </div>
 
 <div class="controls">
 
-<button id="btn-roue">
-Tourner la roue
-</button>
+<button id="btn-roue">Tourner la roue</button>
 
 <label class="switch">
 <input type="checkbox" id="switch-cache">
@@ -399,12 +343,12 @@ Tourner la roue
 </div>
 
 <div class="panel clue-panel">
-<textarea placeholder="Indice droit"></textarea>
+<textarea placeholder="..."></textarea>
 </div>
 
 <div class="panel score-panel">
 
-<h3>Score</h3>
+<h2>Score</h2>
 
 <div class="player">
 
@@ -413,6 +357,7 @@ Tourner la roue
 <div class="score" id="score1">0</div>
 
 <div class="score-buttons">
+<button class="minus1" onclick="addScore(1,-1)">-1</button>
 <button class="plus2" onclick="addScore(1,2)">+2</button>
 <button class="plus3" onclick="addScore(1,3)">+3</button>
 <button class="plus4" onclick="addScore(1,4)">+4</button>
@@ -427,6 +372,7 @@ Tourner la roue
 <div class="score" id="score2">0</div>
 
 <div class="score-buttons">
+<button class="minus1" onclick="addScore(2,-1)">-1</button>
 <button class="plus2" onclick="addScore(2,2)">+2</button>
 <button class="plus3" onclick="addScore(2,3)">+3</button>
 <button class="plus4" onclick="addScore(2,4)">+4</button>
@@ -444,96 +390,89 @@ Tourner la roue
 
 /* ROUE */
 
-const btnRoue=document.getElementById("btn-roue")
-const roue=document.getElementById("roue")
+let roue=document.getElementById("roue")
+let btn=document.getElementById("btn-roue")
 
-let angleRoueActuel=0
+let angle=0
 
-btnRoue.onclick=()=>{
+btn.onclick=()=>{
 
-const tours=1440
-const angleAleatoire=Math.random()*360
+angle+=1440+Math.random()*360
 
-angleRoueActuel+=tours+angleAleatoire
-
-roue.style.transform=`rotate(${angleRoueActuel}deg)`
+roue.style.transform="rotate("+angle+"deg)"
 
 }
 
 /* CACHE */
 
-const cache=document.getElementById("cache")
-const switchCache=document.getElementById("switch-cache")
+let cache=document.getElementById("cache")
+let sw=document.getElementById("switch-cache")
 
-switchCache.onchange=()=>{
+sw.onchange=()=>{
 
-if(switchCache.checked){
-
-cache.classList.add("masque")
-
-}else{
-
-cache.classList.remove("masque")
+cache.style.opacity=sw.checked?0:1
 
 }
 
-}
+/* AIGUILLE TOUCH */
 
-/* AIGUILLE MOBILE + SOURIS */
-
-const aiguille=document.getElementById("aiguille")
-const container=document.getElementById("game-container")
+let aiguille=document.getElementById("aiguille")
+let hitbox=document.getElementById("hitbox")
+let container=document.getElementById("game-container")
 
 let drag=false
 
-function rotateNeedle(x,y){
+hitbox.addEventListener("pointerdown",e=>{
 
-const rect=container.getBoundingClientRect()
+drag=true
+updateAngle(e)
 
-const cx=rect.left+rect.width/2
-const cy=rect.top+rect.height/2
+})
 
-const dx=x-cx
-const dy=y-cy
+document.addEventListener("pointerup",()=>drag=false)
 
-let angle=Math.atan2(dy,dx)*(180/Math.PI)+90
+document.addEventListener("pointermove",e=>{
 
-aiguille.style.transform=`rotate(${angle}deg)`
+if(!drag) return
+updateAngle(e)
+
+})
+
+function updateAngle(e){
+
+let rect=container.getBoundingClientRect()
+
+let cx=rect.left+rect.width/2
+let cy=rect.top+rect.height/2
+
+let x=e.clientX-cx
+let y=e.clientY-cy
+
+let angle
+
+if(y>0){
+
+angle=x>0?90:-90
+
+}else{
+
+angle=Math.atan2(y,x)*(180/Math.PI)+90
 
 }
 
-aiguille.addEventListener("mousedown",()=>drag=true)
-window.addEventListener("mouseup",()=>drag=false)
+aiguille.style.transform="rotate("+angle+"deg)"
 
-window.addEventListener("mousemove",(e)=>{
-if(drag) rotateNeedle(e.clientX,e.clientY)
-})
-
-/* TOUCH */
-
-aiguille.addEventListener("touchstart",()=>drag=true)
-
-window.addEventListener("touchend",()=>drag=false)
-
-window.addEventListener("touchmove",(e)=>{
-
-if(!drag) return
-
-let touch=e.touches[0]
-
-rotateNeedle(touch.clientX,touch.clientY)
-
-})
+}
 
 /* SCORE */
 
 let scores=[0,0]
 
-function addScore(player,points){
+function addScore(p,v){
 
-scores[player-1]+=points
+scores[p-1]+=v
 
-document.getElementById("score"+player).textContent=scores[player-1]
+document.getElementById("score"+p).textContent=scores[p-1]
 
 }
 
@@ -541,8 +480,8 @@ function resetScores(){
 
 scores=[0,0]
 
-document.getElementById("score1").textContent=0
-document.getElementById("score2").textContent=0
+score1.textContent=0
+score2.textContent=0
 
 }
 
